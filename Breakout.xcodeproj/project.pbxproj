@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		44B96F831D1AAC93004C98AC /* BreakoutUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B96F821D1AAC93004C98AC /* BreakoutUIViewController.swift */; };
+		44B96F851D1AADC9004C98AC /* BallUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B96F841D1AADC9004C98AC /* BallUIView.swift */; };
+		44B96F871D1AD8F6004C98AC /* BreakoutBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B96F861D1AD8F6004C98AC /* BreakoutBehavior.swift */; };
 		44C27C741D1A65C4003BC5A7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C27C731D1A65C4003BC5A7 /* AppDelegate.swift */; };
 		44C27C791D1A65C4003BC5A7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 44C27C771D1A65C4003BC5A7 /* Main.storyboard */; };
 		44C27C7B1D1A65C4003BC5A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 44C27C7A1D1A65C4003BC5A7 /* Assets.xcassets */; };
@@ -33,6 +36,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		44B96F821D1AAC93004C98AC /* BreakoutUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutUIViewController.swift; sourceTree = "<group>"; };
+		44B96F841D1AADC9004C98AC /* BallUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallUIView.swift; sourceTree = "<group>"; };
+		44B96F861D1AD8F6004C98AC /* BreakoutBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutBehavior.swift; sourceTree = "<group>"; };
 		44C27C701D1A65C3003BC5A7 /* Breakout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breakout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44C27C731D1A65C4003BC5A7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		44C27C781D1A65C4003BC5A7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -95,8 +101,11 @@
 		44C27C721D1A65C3003BC5A7 /* Breakout */ = {
 			isa = PBXGroup;
 			children = (
+				44B96F821D1AAC93004C98AC /* BreakoutUIViewController.swift */,
+				44B96F861D1AD8F6004C98AC /* BreakoutBehavior.swift */,
 				44C27C731D1A65C4003BC5A7 /* AppDelegate.swift */,
 				44C27C771D1A65C4003BC5A7 /* Main.storyboard */,
+				44B96F841D1AADC9004C98AC /* BallUIView.swift */,
 				44C27C7A1D1A65C4003BC5A7 /* Assets.xcassets */,
 				44C27C7C1D1A65C4003BC5A7 /* LaunchScreen.storyboard */,
 				44C27C7F1D1A65C4003BC5A7 /* Info.plist */,
@@ -257,6 +266,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				44C27C741D1A65C4003BC5A7 /* AppDelegate.swift in Sources */,
+				44B96F851D1AADC9004C98AC /* BallUIView.swift in Sources */,
+				44B96F871D1AD8F6004C98AC /* BreakoutBehavior.swift in Sources */,
+				44B96F831D1AAC93004C98AC /* BreakoutUIViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +495,7 @@
 				44C27C9A1D1A65C4003BC5A7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		44C27C9B1D1A65C4003BC5A7 /* Build configuration list for PBXNativeTarget "BreakoutTests" */ = {
 			isa = XCConfigurationList;
@@ -491,6 +504,7 @@
 				44C27C9D1D1A65C4003BC5A7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		44C27C9E1D1A65C4003BC5A7 /* Build configuration list for PBXNativeTarget "BreakoutUITests" */ = {
 			isa = XCConfigurationList;
@@ -499,6 +513,7 @@
 				44C27CA01D1A65C4003BC5A7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
