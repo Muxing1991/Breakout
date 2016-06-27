@@ -23,6 +23,7 @@
                                 <gestureRecognizers/>
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="2E3-dT-cxx" appends="YES" id="uFf-hX-JUj"/>
+                                    <outletCollection property="gestureRecognizers" destination="YyV-YY-UDu" appends="YES" id="rmK-iS-vrn"/>
                                 </connections>
                             </view>
                         </subviews>
@@ -39,7 +40,16 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="2E3-dT-cxx"/>
+                <tapGestureRecognizer id="2E3-dT-cxx">
+                    <connections>
+                        <action selector="pushBall:" destination="BYZ-38-t0r" id="9AZ-wf-SB9"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="YyV-YY-UDu">
+                    <connections>
+                        <action selector="movePaddle:" destination="BYZ-38-t0r" id="8c3-IG-1cg"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="352" y="339"/>
         </scene>
