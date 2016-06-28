@@ -33,23 +33,31 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
   
   private var isStop = true
   
-//  func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
-//    code
-//  }
+  //  func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
+  //    code
+  //  }
   
   let breakoutBehavior = BreakoutBehavior()
   
-  
+  //MARK: Delegate
   func collisionBehavior(behavior: UICollisionBehavior, endedContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying?) {
-    let id = identifier as? NSString
+    let id = identifier as? NSString as? String
     if id == "gamePanel bottom"{
       //停止动画
       isStop = true
       breakoutBehavior.ballItenBehavior.anchored = true
       //弹出一个alert
       alertGameOver()
+      return
+    }
+    //处理碰撞到砖块
+    else if id != nil{
+      //是以中心坐标为id的砖块
+      //根据id取出UIView
+      breakoutBehavior.removeBrickBoundary((id!, brickDic[id!]!))
     }
   }
+  
   func alertGameOver(){
     let alert = UIAlertController(title: "Game Over", message: "请重新开始", preferredStyle: .ActionSheet)
     alert.addAction(UIAlertAction(title: "确定", style: .Default, handler: {
@@ -57,7 +65,7 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
       (action) -> Void in
       self.gamePanelReload()
       self.breakoutBehavior.ballItenBehavior.anchored = false
-    }))
+      }))
     self.presentViewController(alert, animated: true, completion: nil)
   }
   
@@ -85,13 +93,13 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
   
   //MARK: paddle model
   
- private var paddleSize: CGSize{
+  private var paddleSize: CGSize{
     let width = ballSize.width*2
     let height = ballSize.height/5
     return CGSize(width: width, height: height)
   }
   
- private var paddleOrigin: CGPoint{
+  private var paddleOrigin: CGPoint{
     let x = UIScreen.mainScreen().bounds.width/2 - paddleSize.width/2
     let y = UIScreen.mainScreen().bounds.height - paddleSize.height
     return CGPoint(x: x, y: y)
@@ -119,20 +127,20 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
       gamePanelReload()
     }
   }
-  private var bricksArray = [UIView]()
-  
-   func arrangeBricks(numOfBrick: Int){
-    //清空 brick数组
-    for item in bricksArray{
+
+  //用于存储boundaryId 和 brick的信息
+  private var brickDic = [String : Brick]()
+  //排列砖块的方法
+  func arrangeBricks(numOfBrick: Int){
+    //从父View中清空 brick
+    for item in brickDic.values{
       item.removeFromSuperview()
     }
-    bricksArray = []
-    
+    brickDic.removeAll()
+    //重新计算
     let brickWidth = brickSize.width
     var brickPoint = CGPointZero
     let horizon = (UIScreen.mainScreen().bounds.width - CGFloat(numOfRow)*brickWidth) / CGFloat(numOfRow + 1)
-    print("horizon = \(horizon)")
-    print("brickWidth = \(brickWidth)")
     var vertical = CGFloat(0)
     var bWidth = CGFloat(0)
     var distance = CGFloat(0)
@@ -148,19 +156,20 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
       if item > numOfRow && row > 1{
         item -= ((row - 1) * numOfRow)
       }
-       bWidth = CGFloat(item) * horizon
-       distance = (CGFloat(2*item-1) * 0.5)*brickWidth
+      bWidth = CGFloat(item) * horizon
+      distance = (CGFloat(2*item-1) * 0.5)*brickWidth
       brickPoint.x = bWidth + distance
       brickPoint.y = vertical
-      let brickView = UIView(frame: CGRect(origin: brickPoint, size: brickSize))
+      let brickView = Brick(frame: CGRect(origin: brickPoint, size: brickSize))
       brickView.backgroundColor = paddle.backgroundColor
-      bricksArray.append(brickView)
+      //把序号当作key
+      brickDic["\(i)"] = brickView
     }
-    for brick in bricksArray{
+
+    for brick in brickDic.values{
       gamePanel.addSubview(brick)
-      print(brick.frame)
     }
-    breakoutBehavior.addBricksBoundary(bricksArray)
+    breakoutBehavior.addBricksBoundary(brickDic)
   }
   
   @IBAction func pushBall(sender: UITapGestureRecognizer) {
@@ -171,7 +180,7 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
     let rightBottom = CGPoint(x: breakoutAnimator.referenceView!.bounds.maxX,y: breakoutAnimator.referenceView!.bounds.maxY)
     //不应该放在这里 导致每次点击都执行
     breakoutBehavior.collider.addBoundaryWithIdentifier("gamePanel bottom", fromPoint: leftBottom, toPoint: rightBottom)
-      breakoutBehavior.startPush(ball!)
+    breakoutBehavior.startPush(ball!)
     isStop = false
     
   }
@@ -190,13 +199,13 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
         paddle.center = CGPointMake(paddle.bounds.width/2, paddle.center.y)
       }
       //如果不调用这个更新状态的方法 每一次动画器读取的都是最初的状态
-        breakoutAnimator.updateItemUsingCurrentState(paddle)
+      breakoutAnimator.updateItemUsingCurrentState(paddle)
     default:
       break
     }
     sender.setTranslation(CGPointZero, inView: gamePanel)
   }
-
+  
   //MARK: life cycle
   override func viewDidLoad() {
     breakoutAnimator.addBehavior(breakoutBehavior)
@@ -204,7 +213,7 @@ class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UIC
     breakoutBehavior.addBall(createOneBall())
     breakoutBehavior.collider.collisionDelegate = self
     arrangeBricks(numOfBrick)
-}
+  }
   
   override func viewWillLayoutSubviews() {
     //横屏幕时发生

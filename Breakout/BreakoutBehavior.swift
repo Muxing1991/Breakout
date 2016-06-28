@@ -121,14 +121,22 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
     collider.addBoundaryWithIdentifier(name, forPath: path)
   }
   
-  func addBricksBoundary(bricks: [UIView]){
-    for brick in bricks{
-      brickItemBehavior.addItem(brick)
+  func addBricksBoundary(bricks: [String:Brick]){
+    for key in bricks.keys{
+      brickItemBehavior.addItem(bricks[key]!)
       
       //collider.addItem(brick)
-      //根据 砖块的rect 来添加 碰撞边界
-      collider.addBoundaryWithIdentifier("bricks", forPath: UIBezierPath(rect: brick.frame))
+      //根据 砖块的rect 来添加 碰撞边界  用砖块的中心来做id
+      //砖块的消失 与 碰撞边界的消失要同步
+      collider.addBoundaryWithIdentifier(key, forPath: UIBezierPath(rect: bricks[key]!.frame))
     }
+  }
+  
+  func removeBrickBoundary(brick: (String, Brick)){
+    //删除边界
+    collider.removeBoundaryWithIdentifier("\(brick.0)")
+    //删除图像
+    brick.1.removeFromSuperview()
   }
   
   func startPush(ball: UIView){
