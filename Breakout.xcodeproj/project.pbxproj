@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		44A9C1541D21E5C600A3258D /* Brick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A9C1531D21E5C600A3258D /* Brick.swift */; };
 		44B96F831D1AAC93004C98AC /* BreakoutUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B96F821D1AAC93004C98AC /* BreakoutUIViewController.swift */; };
 		44B96F851D1AADC9004C98AC /* BallUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B96F841D1AADC9004C98AC /* BallUIView.swift */; };
 		44B96F871D1AD8F6004C98AC /* BreakoutBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B96F861D1AD8F6004C98AC /* BreakoutBehavior.swift */; };
@@ -17,6 +16,8 @@
 		44C27C7E1D1A65C4003BC5A7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 44C27C7C1D1A65C4003BC5A7 /* LaunchScreen.storyboard */; };
 		44C27C891D1A65C4003BC5A7 /* BreakoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C27C881D1A65C4003BC5A7 /* BreakoutTests.swift */; };
 		44C27C941D1A65C4003BC5A7 /* BreakoutUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C27C931D1A65C4003BC5A7 /* BreakoutUITests.swift */; };
+		44FD705C1D263A3F006EF663 /* MenuUITableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FD705B1D263A3F006EF663 /* MenuUITableViewController.swift */; };
+		44FD705E1D2653DE006EF663 /* MenuSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FD705D1D2653DE006EF663 /* MenuSetting.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,7 +38,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		44A9C1531D21E5C600A3258D /* Brick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Brick.swift; sourceTree = "<group>"; };
 		44B96F821D1AAC93004C98AC /* BreakoutUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutUIViewController.swift; sourceTree = "<group>"; };
 		44B96F841D1AADC9004C98AC /* BallUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallUIView.swift; sourceTree = "<group>"; };
 		44B96F861D1AD8F6004C98AC /* BreakoutBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutBehavior.swift; sourceTree = "<group>"; };
@@ -53,6 +53,8 @@
 		44C27C8F1D1A65C4003BC5A7 /* BreakoutUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BreakoutUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		44C27C931D1A65C4003BC5A7 /* BreakoutUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakoutUITests.swift; sourceTree = "<group>"; };
 		44C27C951D1A65C4003BC5A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		44FD705B1D263A3F006EF663 /* MenuUITableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuUITableViewController.swift; sourceTree = "<group>"; };
+		44FD705D1D2653DE006EF663 /* MenuSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuSetting.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,10 +106,11 @@
 			isa = PBXGroup;
 			children = (
 				44B96F821D1AAC93004C98AC /* BreakoutUIViewController.swift */,
-				44A9C1531D21E5C600A3258D /* Brick.swift */,
 				44B96F861D1AD8F6004C98AC /* BreakoutBehavior.swift */,
 				44C27C731D1A65C4003BC5A7 /* AppDelegate.swift */,
 				44C27C771D1A65C4003BC5A7 /* Main.storyboard */,
+				44FD705D1D2653DE006EF663 /* MenuSetting.swift */,
+				44FD705B1D263A3F006EF663 /* MenuUITableViewController.swift */,
 				44B96F841D1AADC9004C98AC /* BallUIView.swift */,
 				44C27C7A1D1A65C4003BC5A7 /* Assets.xcassets */,
 				44C27C7C1D1A65C4003BC5A7 /* LaunchScreen.storyboard */,
@@ -268,11 +271,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				44A9C1541D21E5C600A3258D /* Brick.swift in Sources */,
 				44C27C741D1A65C4003BC5A7 /* AppDelegate.swift in Sources */,
 				44B96F851D1AADC9004C98AC /* BallUIView.swift in Sources */,
+				44FD705C1D263A3F006EF663 /* MenuUITableViewController.swift in Sources */,
 				44B96F871D1AD8F6004C98AC /* BreakoutBehavior.swift in Sources */,
 				44B96F831D1AAC93004C98AC /* BreakoutUIViewController.swift in Sources */,
+				44FD705E1D2653DE006EF663 /* MenuSetting.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
