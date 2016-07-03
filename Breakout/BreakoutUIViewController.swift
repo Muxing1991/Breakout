@@ -8,215 +8,185 @@
 
 import UIKit
 
-class BreakoutUIViewController: UIViewController, UIDynamicAnimatorDelegate, UICollisionBehaviorDelegate {
+class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   
-  
+  //MARK: - Outlets
   @IBOutlet weak var gamePanel: UIView!
   
-  func gamePanelReload(){
-    isStop = true
-    //排列球
-    ball?.frame.origin = ballOrigin
-    //排列paddle
-    paddle.frame.origin = paddleOrigin
-    
-    breakoutAnimator.updateItemUsingCurrentState(ball!)
-    breakoutAnimator.updateItemUsingCurrentState(paddle)
-  }
+  //MARK: - Property
   
-  //MARK: animator & delegateMethod
   lazy var breakoutAnimator: UIDynamicAnimator = {
-    let animator = UIDynamicAnimator(referenceView: self.gamePanel)
-    animator.delegate = self
-    return animator
+    let animaotr = UIDynamicAnimator(referenceView: self.gamePanel)
+    return animaotr
   }()
-  
-  private var isStop = true
-  
-  //  func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
-  //    code
-  //  }
   
   let breakoutBehavior = BreakoutBehavior()
   
-  //MARK: Delegate
-  func collisionBehavior(behavior: UICollisionBehavior, endedContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying?) {
-    let id = identifier as? NSString as? String
-    if id == "gamePanel bottom"{
-      //停止动画
-      isStop = true
-      breakoutBehavior.ballItenBehavior.anchored = true
-      //弹出一个alert
-      alertGameOver()
-      return
+  //隐式解析可选类型 这里不用初始化 但是保证在第一次初始化后 会一直都有值
+  private var pushMagnitude: CGFloat!
+  
+  
+  
+  
+  //MARK: - Methods
+  
+  private func pushBall(ball: UIView, ballArea: CGFloat){
+    let pushBehavior = UIPushBehavior(items: [ball], mode: .Instantaneous)
+    pushBehavior.magnitude = pushMagnitude * ballArea / 1000
+    pushBehavior.angle = CGFloat(randomAngle())
+    //清理这个UIPushBehavior
+    pushBehavior.action = {
+      [unowned pushBehavior] in
+      pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
     }
-    //处理碰撞到砖块
-    else if id != nil{
-      //是以中心坐标为id的砖块
-      //根据id取出UIView
-      breakoutBehavior.removeBrickBoundary((id!, brickDic[id!]!))
-    }
+    breakoutAnimator.addBehavior(pushBehavior)
   }
   
-  func alertGameOver(){
-    let alert = UIAlertController(title: "Game Over", message: "请重新开始", preferredStyle: .ActionSheet)
-    alert.addAction(UIAlertAction(title: "确定", style: .Default, handler: {
-      [unowned self]
-      (action) -> Void in
-      self.gamePanelReload()
-      self.breakoutBehavior.ballItenBehavior.anchored = false
-      }))
-    self.presentViewController(alert, animated: true, completion: nil)
+  
+  
+  
+  private func randomAngle() -> Double {
+    return 2 * M_PI * Double(arc4random() / UInt32.max)
   }
   
-  //MARK: ball model
+  
+  //MARK: - Model Ball
+  
   private var ballSize: CGSize{
-    let size = UIScreen.mainScreen().bounds.width / 10
+    let size = Constants.relBallSize * min(gamePanel.bounds.width, gamePanel.bounds.height)
     return CGSize(width: size, height: size)
   }
   
-  private var ballOrigin: CGPoint{
-    let x = UIScreen.mainScreen().bounds.width/2 - ballSize.width/2
-    let y = UIScreen.mainScreen().bounds.height - ballSize.height - paddleSize.height
-    return CGPoint(x: x, y: y)
-  }
-  var ball: BallUIView?
+  private var ballVelocity = [CGPoint]()
   
-  private func createOneBall() -> BallUIView{
-    if let oldBall = ball{
-      oldBall.removeFromSuperview()
+  private class BallView: UIView{
+    private override var collisionBoundsType: UIDynamicItemCollisionBoundsType{
+      //重写碰撞边界类型
+      return .Ellipse
     }
-    let myBall = BallUIView(frame: CGRect(origin: ballOrigin, size: ballSize))
-    ball = myBall
-    return myBall
+    override init(frame: CGRect) {
+      super.init(frame: frame)
+      self.backgroundColor = Constants.ballColor
+      //设为圆形
+      self.layer.cornerRadius = self.bounds.width / 2
+      self.layer.masksToBounds = true
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+      fatalError("init(coder:) has not been implemented")
+    }
   }
   
-  //MARK: paddle model
+  private func startBall(){
+    if breakoutBehavior.items.count == 0{
+      //没有球 新建一个
+      let ball = BallUIView(frame: CGRect(origin: CGPointZero, size: ballSize))
+      placedBall(ball)
+      breakoutBehavior.addBall(ball)
+      
+      //可以开始弹射了
+      //计算球的面积
+      let ballArea = CGFloat(M_PI) * (ballSize.width/2) * (ballSize.width/2)
+      pushBall(ball, ballArea: ballArea)
+      
+    }
+    else{
+      //球已经存在了
+      //先让球停止 然后再push
+      let ball = breakoutBehavior.items.last!
+      breakoutBehavior.stopBall(ball)
+      //重新push
+      let ballArea = CGFloat(M_PI) * (ballSize.width/2) * (ballSize.width/2)
+      pushBall(ball, ballArea: ballArea)
+
+    }
+  }
+  
+  private func placedBall(ball: BallUIView){
+    //TODO: 这里要摆放球
+  }
+  
+  //MARK: - Barrier & Paddle
+  
+  //添加三边的边界
+  private func setThreeSideBarrier(){
+    let topLeft = CGPoint(x: 0, y: 0)
+    let topRight = CGPoint(x: gamePanel.bounds.width, y: 0)
+    let leftBottom = CGPoint(x: 0, y: gamePanel.bounds.height)
+    let rightBottom = CGPoint(x: gamePanel.bounds.width, y: gamePanel.bounds.height)
+    breakoutBehavior.addBoundary(topLeft, endPoint: topRight, identifier: PathIdentifier.topBarrier)
+    breakoutBehavior.addBoundary(topLeft, endPoint: leftBottom , identifier: PathIdentifier.leftBarrier)
+    breakoutBehavior.addBoundary(topRight, endPoint: rightBottom, identifier: PathIdentifier.rightBarrier)
+    
+  }
+  //隐式解析可选类型 在初始化游戏时决定 并且可以设置
+  private var relPaddleWidth: CGFloat!{
+    didSet{
+      if !gameViewSizeChange && oldValue != relPaddleWidth{
+        resetPaddle()
+      }
+    }
+  }
   
   private var paddleSize: CGSize{
-    let width = ballSize.width*2
-    let height = ballSize.height/5
-    return CGSize(width: width, height: height)
+    //按照比例 以宽度来设置
+    let width = relPaddleWidth * gamePanel.bounds.width
+    return CGSize(width: width, height: Constants.paddleHeight)
   }
   
-  private var paddleOrigin: CGPoint{
-    let x = UIScreen.mainScreen().bounds.width/2 - paddleSize.width/2
-    let y = UIScreen.mainScreen().bounds.height - paddleSize.height
-    return CGPoint(x: x, y: y)
-  }
-  
-  lazy var paddle: UIView = {
-    let p = UIView(frame: CGRect(origin: self.paddleOrigin, size: self.paddleSize))
+  private lazy var paddle: UIView = {
+    let p = UIView(frame: CGRect(origin: CGPointZero, size: self.paddleSize))
     p.backgroundColor = UIColor.blackColor()
+    self.gamePanel.addSubview(p)
     return p
   }()
   
-  
-  //MARK: brick model
-  private var brickSize: CGSize{
-    return CGSize(width: paddleSize.width/2, height: paddleSize.height)
-  }
-  
-  var numOfBrick: Int = 20 {
-    didSet{
-      gamePanelReload()
-    }
-  }
-  var numOfRow: Int = 5{
-    didSet{
-      gamePanelReload()
-    }
-  }
-
-  //用于存储boundaryId 和 brick的信息
-  private var brickDic = [String : Brick]()
-  //排列砖块的方法
-  func arrangeBricks(numOfBrick: Int){
-    //从父View中清空 brick
-    for item in brickDic.values{
-      item.removeFromSuperview()
-    }
-    brickDic.removeAll()
-    //重新计算
-    let brickWidth = brickSize.width
-    var brickPoint = CGPointZero
-    let horizon = (UIScreen.mainScreen().bounds.width - CGFloat(numOfRow)*brickWidth) / CGFloat(numOfRow + 1)
-    var vertical = CGFloat(0)
-    var bWidth = CGFloat(0)
-    var distance = CGFloat(0)
-    var item = 1
-    var row = 0
-    for i in 1...numOfBrick{
-      item = i
-      if i%numOfRow == 1{
-        //换行
-        vertical += ballSize.height
-        row += 1
-      }
-      if item > numOfRow && row > 1{
-        item -= ((row - 1) * numOfRow)
-      }
-      bWidth = CGFloat(item) * horizon
-      distance = (CGFloat(2*item-1) * 0.5)*brickWidth
-      brickPoint.x = bWidth + distance
-      brickPoint.y = vertical
-      let brickView = Brick(frame: CGRect(origin: brickPoint, size: brickSize))
-      brickView.backgroundColor = paddle.backgroundColor
-      //把序号当作key
-      brickDic["\(i)"] = brickView
-    }
-
-    for brick in brickDic.values{
-      gamePanel.addSubview(brick)
-    }
-    breakoutBehavior.addBricksBoundary(brickDic)
-  }
-  
-  @IBAction func pushBall(sender: UITapGestureRecognizer) {
-    if !isStop{
-      return
-    }
-    let leftBottom = CGPoint(x: breakoutAnimator.referenceView!.bounds.minX,y: breakoutAnimator.referenceView!.bounds.maxY)
-    let rightBottom = CGPoint(x: breakoutAnimator.referenceView!.bounds.maxX,y: breakoutAnimator.referenceView!.bounds.maxY)
-    //不应该放在这里 导致每次点击都执行
-    breakoutBehavior.collider.addBoundaryWithIdentifier("gamePanel bottom", fromPoint: leftBottom, toPoint: rightBottom)
-    breakoutBehavior.startPush(ball!)
-    isStop = false
+  private func resetPaddle(){
     
   }
-  @IBAction func movePaddle(sender: UIPanGestureRecognizer) {
-    switch sender.state {
-    case .Ended:
-      fallthrough
-    case .Changed:
-      let pointInView = sender.translationInView(gamePanel)
-      paddle.center.x += pointInView.x
-      //不能让paddle 越界
-      if paddle.frame.maxX >= gamePanel.bounds.maxX{
-        paddle.center = CGPointMake(gamePanel.bounds.maxX - paddle.bounds.width/2, paddle.center.y )
-      }
-      if paddle.frame.minX <= 0{
-        paddle.center = CGPointMake(paddle.bounds.width/2, paddle.center.y)
-      }
-      //如果不调用这个更新状态的方法 每一次动画器读取的都是最初的状态
-      breakoutAnimator.updateItemUsingCurrentState(paddle)
-    default:
-      break
-    }
-    sender.setTranslation(CGPointZero, inView: gamePanel)
-  }
   
-  //MARK: life cycle
+  //MARK: - Lifecycle
+  
+  private var gameViewSizeChange = true
+  
   override func viewDidLoad() {
+    super.viewDidLoad()
     breakoutAnimator.addBehavior(breakoutBehavior)
-    breakoutBehavior.addRect(paddle)
-    breakoutBehavior.addBall(createOneBall())
-    breakoutBehavior.collider.collisionDelegate = self
-    arrangeBricks(numOfBrick)
+    
+    //设置下  背景
+    if let backgroundPic = UIImage(named: "box"){
+      //这里设置的 backgroundColor
+      gamePanel.backgroundColor  = UIColor(patternImage: backgroundPic)
+    }
   }
   
-  override func viewWillLayoutSubviews() {
-    //横屏幕时发生
+  //MARK: - Delegate
+  
+  func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying?, atPoint p: CGPoint) {
+    if let bricksId = Int((identifier as? String)!){
+      
+    }
   }
   
+}
+
+
+private struct Constants{
+  static let relBallSize = CGFloat(0.1)
+  static let ballColor = UIColor.blackColor()
+  
+  static let paddleHeight = CGFloat(10)
+  static let paddleYOffSet = CGFloat(50)
+  
+  static let brickHeight = CGFloat(8)
+  static let brickSeparation = CGFloat(4)
+  static let brickYOffSet = CGFloat(70)
+}
+
+private struct PathIdentifier{
+  static let topBarrier = "Top Barrier"
+  static let leftBarrier = "Left Barrier"
+  static let rightBarrier = "Right Barrier"
+  
+  static let paddleIdentiifer = "Paddle"
 }
