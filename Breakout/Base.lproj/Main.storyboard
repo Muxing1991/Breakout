@@ -6,7 +6,7 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--BreakoutUI View Controller-->
+        <!--Item-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="BreakoutUIViewController" customModule="Breakout" customModuleProvider="target" sceneMemberID="viewController">
@@ -22,9 +22,14 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="2Qj-OV-qiu" appends="YES" id="Dqp-8S-o1A"/>
+                                    <outletCollection property="gestureRecognizers" destination="olt-UI-4XP" appends="YES" id="kVF-mt-ERm"/>
+                                </connections>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="euq-Br-Hic" secondAttribute="trailing" id="Io1-If-AKf"/>
                             <constraint firstItem="euq-Br-Hic" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Xms-3A-uVy"/>
@@ -32,16 +37,25 @@
                             <constraint firstItem="euq-Br-Hic" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="nDh-3H-q77"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" systemItem="favorites" id="8Zf-sr-xMU"/>
+                    <tabBarItem key="tabBarItem" title="Item" id="7HQ-du-pM8"/>
+                    <navigationItem key="navigationItem" id="K8w-Cd-xA0"/>
                     <connections>
                         <outlet property="gamePanel" destination="euq-Br-Hic" id="5te-Oj-PLD"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="2E3-dT-cxx"/>
-                <panGestureRecognizer minimumNumberOfTouches="1" id="YyV-YY-UDu"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="2Qj-OV-qiu">
+                    <connections>
+                        <action selector="panPaddle:" destination="BYZ-38-t0r" id="YXI-ft-KKC"/>
+                    </connections>
+                </panGestureRecognizer>
+                <tapGestureRecognizer id="olt-UI-4XP">
+                    <connections>
+                        <action selector="ball:" destination="BYZ-38-t0r" id="gQl-XO-yHX"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="520" y="433"/>
+            <point key="canvasLocation" x="655" y="438"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="1iv-jq-C9Q">
@@ -53,8 +67,8 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="e8N-e0-0Ea"/>
-                        <segue destination="WlB-cH-ogn" kind="relationship" relationship="viewControllers" id="m5e-I4-iOw"/>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="lIv-6s-S3w"/>
+                        <segue destination="WlB-cH-ogn" kind="relationship" relationship="viewControllers" id="M9i-Dx-mz4"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="M8d-dn-2vN" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -304,7 +318,8 @@
                             <outlet property="delegate" destination="WlB-cH-ogn" id="epV-rB-o34"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" systemItem="featured" id="yXg-7L-2yI"/>
+                    <tabBarItem key="tabBarItem" title="Item" id="20W-Yn-5hf"/>
+                    <navigationItem key="navigationItem" id="pdR-fl-ju5"/>
                     <connections>
                         <outlet property="brickColLabel" destination="9po-zU-K9m" id="oaj-zO-1DG"/>
                         <outlet property="brickColStepper" destination="vV6-bC-fdd" id="hfh-t2-Lnu"/>
@@ -319,7 +334,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8zC-rM-HNQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-101" y="1128"/>
+            <point key="canvasLocation" x="190" y="1196"/>
         </scene>
     </scenes>
 </document>

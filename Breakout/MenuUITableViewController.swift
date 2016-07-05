@@ -120,4 +120,14 @@ class MenuUITableViewController: UITableViewController {
     
   }
   
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    tableView.tableFooterView = UIView()
+  }
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    menuOptionReset()
+  }
+  
 }

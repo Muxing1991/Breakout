@@ -48,8 +48,8 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
   
   
   //MARK: - property
-  var items: [UIView]{
-    return self.ballItemBehavior.items.map{$0 as! UIView}
+  var items: [BallUIView]{
+    return self.ballItemBehavior.items.map{$0 as! BallUIView}
   }
   //隐式解析可选类型 第一次赋值后 可以确定这个可选类型都会有值 不用在判断 这里也不用初始化
   var gravityOn: Bool!
@@ -102,11 +102,13 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
     ball.removeFromSuperview()
   }
   //给球一个相反的线速度 然后返回线速度
-  func stopBall(ball: UIView) -> CGPoint{
+  func stopBall(ball: BallUIView) -> CGPoint{
     if self.items.contains(ball){
      let linearVelocity = ballItemBehavior.linearVelocityForItem(ball)
       //设置一个相反方向的线速度
+      print("linearVelocity = \(ballItemBehavior.linearVelocityForItem(ball))")
       ballItemBehavior.addLinearVelocity(CGPoint(x: -linearVelocity.x, y: -linearVelocity.y), forItem: ball)
+      print("linearVelocity = \(ballItemBehavior.linearVelocityForItem(ball))")
       return linearVelocity
     }
     return CGPointZero
