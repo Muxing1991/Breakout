@@ -13,6 +13,28 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   //MARK: - Outlets
   @IBOutlet weak var gamePanel: UIView!
   
+  //MARK: - Gesture
+  
+  @IBAction func ball(sender: UITapGestureRecognizer) {
+    startBall()
+  }
+  
+  
+  @IBAction func panPaddle(sender: UIPanGestureRecognizer) {
+    switch sender.state {
+    case .Ended:
+      fallthrough
+    //即使是停止 也要移动
+    case .Changed:
+      let transX = sender.translationInView(gamePanel).x
+      if transX != 0{
+        paddleXPosition += transX
+      }
+      sender.setTranslation(CGPointZero, inView: gamePanel)
+    default:
+      break
+    }
+  }
   //MARK: - Property
   
   lazy var breakoutAnimator: UIDynamicAnimator = {
@@ -32,12 +54,13 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   
   private func pushBall(ball: UIView, ballArea: CGFloat){
     let pushBehavior = UIPushBehavior(items: [ball], mode: .Instantaneous)
-    pushBehavior.magnitude = pushMagnitude * ballArea / 1000
+    pushBehavior.magnitude = pushMagnitude * ballArea / 10000.0
+    print("magnitude = \(pushBehavior.magnitude)")
     pushBehavior.angle = CGFloat(randomAngle())
     //清理这个UIPushBehavior
     pushBehavior.action = {
       [unowned pushBehavior] in
-      pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
+      pushBehavior.dynamicAnimator!.removeBehavior(pushBehavior)
     }
     breakoutAnimator.addBehavior(pushBehavior)
   }
@@ -46,14 +69,19 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   
   
   private func randomAngle() -> Double {
-    return 2 * M_PI * Double(arc4random() / UInt32.max)
+    //这两个是一个样的
+    print("UInt32.max = \(UInt32.max)" )
+    print("_MAX = \(UINT32_MAX)")
+    //return 2 * M_PI * Double(arc4random() / UInt32.max)
+    return 2 * M_PI * Double(arc4random()) / Double(UINT32_MAX)
+   
   }
   
   
   //MARK: - Model Ball
   
   private var ballSize: CGSize{
-    let size = Constants.relBallSize * min(gamePanel.bounds.width, gamePanel.bounds.height)
+    let size = Constants.relBallSize * min(gamePanel.bounds.size.width, gamePanel.bounds.size.height)
     return CGSize(width: size, height: size)
   }
   
@@ -86,7 +114,9 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
       
       //可以开始弹射了
       //计算球的面积
-      let ballArea = CGFloat(M_PI) * (ballSize.width/2) * (ballSize.width/2)
+      var points = ballSize.width/2.0
+      print("points = \(points)")
+      let ballArea = CGFloat(M_PI) * points * points
       pushBall(ball, ballArea: ballArea)
       
     }
@@ -96,14 +126,19 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
       let ball = breakoutBehavior.items.last!
       breakoutBehavior.stopBall(ball)
       //重新push
-      let ballArea = CGFloat(M_PI) * (ballSize.width/2) * (ballSize.width/2)
+      var points = ballSize.width/2.0
+      print("points = \(points)")
+      let ballArea = CGFloat(M_PI) * points * points
+      print(ballArea)
       pushBall(ball, ballArea: ballArea)
-
+      
     }
   }
   
   private func placedBall(ball: BallUIView){
-    //TODO: 这里要摆放球
+    ball.center = paddle.center
+    ball.center.y -= (ballSize.height + paddleSize.height)/2
+    
   }
   
   //MARK: - Barrier & Paddle
@@ -130,7 +165,10 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   
   private var paddleSize: CGSize{
     //按照比例 以宽度来设置
-    let width = relPaddleWidth * gamePanel.bounds.width
+    let width = relPaddleWidth * gamePanel.bounds.size.width
+//    print("bounds.width = \(gamePanel.bounds.width)" )
+//    print("bounds.size.width = \(gamePanel.bounds.size.width)")
+    //bounds.size.width 是等于 bounds.width
     return CGSize(width: width, height: Constants.paddleHeight)
   }
   
@@ -141,7 +179,134 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
     return p
   }()
   
+  private var paddleXPosition: CGFloat{
+    get{
+      return paddle.frame.origin.x
+    }
+    set{
+      paddle.frame.origin.x = min(max(newValue, 0), gamePanel.bounds.maxX - paddleSize.width)
+      //更新边界
+      let arg1 = UIBezierPath(ovalInRect: paddle.frame)
+      breakoutBehavior.addBarrier(arg1, identifier: PathIdentifier.paddleIdentiifer)
+    }
+  }
+  
+  
   private func resetPaddle(){
+    //重新利用计算属性paddleSize 来设置大小
+    paddle.frame.size = paddleSize
+    //重新设置位置 之前的origin是设置为 CGPointZero
+    let x = gamePanel.bounds.midX
+    let y = gamePanel.bounds.height - paddleSize.height/2 - Constants.paddleYOffSet
+    paddle.center = CGPointMake(x, y)
+    //增加边界
+    let arg1 = UIBezierPath(ovalInRect: paddle.frame)
+    breakoutBehavior.addBarrier(arg1, identifier: PathIdentifier.paddleIdentiifer)
+  }
+  
+  
+  //MARK: - Bricks
+  
+  private var brickRows: Int!{
+    //隐式解析可选类型 不设置默认值
+    didSet{
+      if !gameViewSizeChange && oldValue != brickRows{
+        generateBricks()
+      }
+    }
+  }
+  
+  private var brickCols: Int!{
+    didSet{
+      if !gameViewSizeChange && oldValue != brickRows{
+        generateBricks()
+      }
+    }
+  }
+  
+  private var brickSize: CGSize{
+    let width = (gamePanel.bounds.width - Constants.brickSeparation*(CGFloat(brickCols)+1))/CGFloat(brickCols)
+    return CGSizeMake(width, Constants.brickHeight)
+  }
+  
+  private var bricks = [UIView]()
+  
+  private func generateBricks(){
+    removeBricks()
+    let top = gamePanel.bounds.minY + Constants.brickSeparation
+    let middle = Constants.brickYOffSet
+    let midPoint = brickRows/2
+    if midPoint != 0 {
+      let origin = CGPoint(x: Constants.brickSeparation, y: top)
+      addBricks(origin, startRow: 0, endRow: midPoint - 1)
+    }
+    
+    let origin = CGPoint(x: Constants.brickSeparation, y: top + middle + CGFloat(midPoint)*(Constants.brickHeight + Constants.brickSeparation) - Constants.brickSeparation)
+    addBricks(origin, startRow: midPoint, endRow: brickCols - 1)
+  }
+  
+  //设定排列的起始行 终止行
+  private func addBricks(origin: CGPoint, startRow: Int, endRow: Int){
+    var brickOrigin = origin
+    for _ in startRow...endRow{
+      for _ in 1...brickCols{
+        let brick = UIView(frame: CGRect(origin: brickOrigin, size: brickSize))
+        brick.backgroundColor = Constants.brickColor
+        gamePanel.addSubview(brick)
+        bricks.append(brick)
+        breakoutBehavior.addBarrier(UIBezierPath(rect: brick.frame), identifier: "\(bricks.count-1)")
+        //更新横坐标
+        brickOrigin.x += Constants.brickSeparation + brickSize.width
+      }
+      //换行了
+      brickOrigin.x = origin.x
+      brickOrigin.y += Constants.brickSeparation + brickSize.height
+    }
+  }
+  
+  private func removeBricks(){
+    if bricks.count == 0 {
+      return
+    }
+    for i in 0..<bricks.count{
+      breakoutBehavior.removeBarrier("\(i)")
+      bricks[i].removeFromSuperview()
+    }
+    bricks = []
+  }
+  
+  private var hitBrickNum = 0
+  
+  private func removeBrickHited(i: Int){
+    breakoutBehavior.removeBarrier("\(i)")
+    hitBrickNum += 1
+    //旋转淡出的效果
+    UIView.transitionWithView(bricks[i], duration: 0.5, options: .TransitionFlipFromLeft, animations: {
+      self.bricks[i].alpha = 0
+      
+      }, completion: nil)
+    
+    if bricks.count == hitBrickNum{
+      endTheGame()
+    }
+  }
+  
+  private func endTheGame(){
+    for item in breakoutBehavior.items{
+      breakoutBehavior.removeBall(item)
+    }
+    
+    let alert = UIAlertController(title: "Game Over", message: "Start new game?", preferredStyle: .Alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+      (action) in
+      self.resetPaddle()
+      self.generateBricks()
+    }))
+    
+    alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
+    
+    presentViewController(alert, animated: true, completion: nil)
+    
     
   }
   
@@ -152,26 +317,98 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   override func viewDidLoad() {
     super.viewDidLoad()
     breakoutAnimator.addBehavior(breakoutBehavior)
-    
+    //碰撞的delegate设置为该controller
+    breakoutBehavior.collisionDelegate = self
     //设置下  背景
     if let backgroundPic = UIImage(named: "box"){
       //这里设置的 backgroundColor
       gamePanel.backgroundColor  = UIColor(patternImage: backgroundPic)
     }
+    
+    
   }
   
+  override func viewWillAppear(animated: Bool) {
+
+    super.viewWillAppear(animated)
+    //在跳回游戏界面后 要重新设置setting
+    let mySetting = MenuSetting()
+    brickCols = mySetting.brickCols
+    brickRows = mySetting.brickRows
+    relPaddleWidth = mySetting.relPaddle
+    pushMagnitude = mySetting.pushMagnitude
+    breakoutBehavior.gravityOn = mySetting.gravityOn
+    
+    //restart ball
+    if !ballVelocity.isEmpty {
+      for i in 0..<breakoutBehavior.items.count{
+        breakoutBehavior.startBall(breakoutBehavior.items[i], veloctity: ballVelocity[i])
+      }
+    }
+    
+  }
+  
+  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    gameViewSizeChange = true
+  }
+  
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    
+    let mySetting = MenuSetting()
+    brickCols = mySetting.brickCols
+    brickRows = mySetting.brickRows
+    relPaddleWidth = mySetting.relPaddle
+    pushMagnitude = mySetting.pushMagnitude
+    breakoutBehavior.gravityOn = mySetting.gravityOn
+    
+    //restart ball
+    if !ballVelocity.isEmpty {
+      for i in 0..<breakoutBehavior.items.count{
+        breakoutBehavior.startBall(breakoutBehavior.items[i], veloctity: ballVelocity[i])
+      }
+    }
+
+    
+    if gameViewSizeChange{
+      gameViewSizeChange = false
+      
+      setThreeSideBarrier()
+      
+      resetPaddle()
+      
+      for item in breakoutBehavior.items{
+        if !CGRectContainsRect(item.frame, gamePanel.frame){
+          placedBall(item)
+          breakoutAnimator.updateItemUsingCurrentState(item)
+        }
+        
+      }
+      generateBricks()
+    }
+  }
+  
+  override func viewWillDisappear(animated: Bool) {
+    super.viewWillDisappear(animated)
+    //把球停下来
+    ballVelocity = []
+    for item in breakoutBehavior.items{
+      ballVelocity.append(breakoutBehavior.stopBall(item))
+    }
+  }
   //MARK: - Delegate
   
   func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying?, atPoint p: CGPoint) {
     if let bricksId = Int((identifier as? String)!){
-      
+      removeBrickHited(bricksId)
     }
   }
-  
 }
 
 
+
 private struct Constants{
+  //宽度的十分之一就行
   static let relBallSize = CGFloat(0.1)
   static let ballColor = UIColor.blackColor()
   
@@ -181,6 +418,7 @@ private struct Constants{
   static let brickHeight = CGFloat(8)
   static let brickSeparation = CGFloat(4)
   static let brickYOffSet = CGFloat(70)
+  static let brickColor = UIColor.purpleColor()
 }
 
 private struct PathIdentifier{

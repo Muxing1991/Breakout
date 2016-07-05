@@ -58,6 +58,8 @@ class MenuSetting{
     }
   }
   
+  
+  
   //MARK - Method
   func resetGameOptions(){
     brickRows = Constant.brickRowsDefault
