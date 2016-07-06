@@ -106,9 +106,9 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
     if self.items.contains(ball){
      let linearVelocity = ballItemBehavior.linearVelocityForItem(ball)
       //设置一个相反方向的线速度
-      print("linearVelocity = \(ballItemBehavior.linearVelocityForItem(ball))")
+     
       ballItemBehavior.addLinearVelocity(CGPoint(x: -linearVelocity.x, y: -linearVelocity.y), forItem: ball)
-      print("linearVelocity = \(ballItemBehavior.linearVelocityForItem(ball))")
+     
       return linearVelocity
     }
     return CGPointZero

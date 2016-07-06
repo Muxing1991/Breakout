@@ -263,7 +263,7 @@
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="72y-fw-lQl">
+                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="25" translatesAutoresizingMaskIntoConstraints="NO" id="72y-fw-lQl">
                                                     <rect key="frame" x="6" y="44" width="588" height="31"/>
                                                     <connections>
                                                         <action selector="pushMagnChange:" destination="WlB-cH-ogn" eventType="valueChanged" id="WpA-be-4Fb"/>

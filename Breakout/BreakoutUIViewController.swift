@@ -55,7 +55,6 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   private func pushBall(ball: UIView, ballArea: CGFloat){
     let pushBehavior = UIPushBehavior(items: [ball], mode: .Instantaneous)
     pushBehavior.magnitude = pushMagnitude * ballArea / 10000.0
-    print("magnitude = \(pushBehavior.magnitude)")
     pushBehavior.angle = CGFloat(randomAngle())
     //清理这个UIPushBehavior
     pushBehavior.action = {
@@ -70,9 +69,7 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   
   private func randomAngle() -> Double {
     //这两个是一个样的
-    print("UInt32.max = \(UInt32.max)" )
-    print("_MAX = \(UINT32_MAX)")
-    //return 2 * M_PI * Double(arc4random() / UInt32.max)
+    //这里如果不先转换成double arc4random / max 就一直会是 0  Double(0) = 0
     return 2 * M_PI * Double(arc4random()) / Double(UINT32_MAX)
    
   }
@@ -114,8 +111,7 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
       
       //可以开始弹射了
       //计算球的面积
-      var points = ballSize.width/2.0
-      print("points = \(points)")
+      let points = ballSize.width/2.0
       let ballArea = CGFloat(M_PI) * points * points
       pushBall(ball, ballArea: ballArea)
       
@@ -126,10 +122,8 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
       let ball = breakoutBehavior.items.last!
       breakoutBehavior.stopBall(ball)
       //重新push
-      var points = ballSize.width/2.0
-      print("points = \(points)")
+      let points = ballSize.width/2.0
       let ballArea = CGFloat(M_PI) * points * points
-      print(ballArea)
       pushBall(ball, ballArea: ballArea)
       
     }
@@ -166,9 +160,6 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   private var paddleSize: CGSize{
     //按照比例 以宽度来设置
     let width = relPaddleWidth * gamePanel.bounds.size.width
-//    print("bounds.width = \(gamePanel.bounds.width)" )
-//    print("bounds.size.width = \(gamePanel.bounds.size.width)")
-    //bounds.size.width 是等于 bounds.width
     return CGSize(width: width, height: Constants.paddleHeight)
   }
   
@@ -197,7 +188,7 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
     paddle.frame.size = paddleSize
     //重新设置位置 之前的origin是设置为 CGPointZero
     let x = gamePanel.bounds.midX
-    let y = gamePanel.bounds.height - paddleSize.height/2 - Constants.paddleYOffSet
+    let y = UIScreen.mainScreen().bounds.height - paddleSize.height/2 - Constants.paddleYOffSet
     paddle.center = CGPointMake(x, y)
     //增加边界
     let arg1 = UIBezierPath(ovalInRect: paddle.frame)
@@ -242,7 +233,7 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
     }
     
     let origin = CGPoint(x: Constants.brickSeparation, y: top + middle + CGFloat(midPoint)*(Constants.brickHeight + Constants.brickSeparation) - Constants.brickSeparation)
-    addBricks(origin, startRow: midPoint, endRow: brickCols - 1)
+    addBricks(origin, startRow: midPoint, endRow: brickRows - 1)
   }
   
   //设定排列的起始行 终止行
@@ -294,6 +285,7 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
   private func endTheGame(){
     for item in breakoutBehavior.items{
       breakoutBehavior.removeBall(item)
+      hitBrickNum = 0
     }
     
     let alert = UIAlertController(title: "Game Over", message: "Start new game?", preferredStyle: .Alert)
@@ -382,7 +374,6 @@ class BreakoutUIViewController: UIViewController, UICollisionBehaviorDelegate {
           placedBall(item)
           breakoutAnimator.updateItemUsingCurrentState(item)
         }
-        
       }
       generateBricks()
     }
@@ -413,7 +404,7 @@ private struct Constants{
   static let ballColor = UIColor.blackColor()
   
   static let paddleHeight = CGFloat(10)
-  static let paddleYOffSet = CGFloat(50)
+  static let paddleYOffSet = CGFloat(70)
   
   static let brickHeight = CGFloat(8)
   static let brickSeparation = CGFloat(4)
